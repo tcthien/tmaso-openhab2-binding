@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="door">
+		<label>Smart Door</label>
+		<description>Smart Door controlled by RFID and Contact sensor</description>
+		<channels>
+			<channel id="status" typeId="statusChannel" />
+			<channel id="locker" typeId="lockerChannel" />
+		</channels>
+		<config-description>
+		<!-- 
+			<parameter name="pingtime" type="integer" required="true">
+				<context>pingtime</context>
+				<label>Ping Time</label>
+				<description>Time to send MQTT ping packet in minutes.</description>
+				<default>5</default>
+			</parameter>
+		 -->
+		</config-description>
+	</thing-type>
+	<channel-type id="statusChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Door State</label>
+        <description>Showing if the door is open or closed</description>
+        <category>Sensor</category>
+        <tags>
+            <tag>Sensor</tag>
+        </tags>
+    </channel-type>
+    <channel-type id="lockerChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Door Locker</label>
+        <description>Authenticate RFID card</description>
+        <category>Security</category>
+        <tags>
+            <tag>Security</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>

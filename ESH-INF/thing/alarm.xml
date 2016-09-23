@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="alarm">
+		<label>Alarm</label>
+		<description>Alarm including buzzer and led</description>
+		<channels>
+			<channel id="buzzer" typeId="buzzerChannel" />
+			<channel id="led" typeId="ledChannel" />
+		</channels>
+		<config-description>
+		<!-- 
+			<parameter name="pingtime" type="integer" required="true">
+				<context>pingtime</context>
+				<label>Ping Time</label>
+				<description>Time to send MQTT ping packet in minutes.</description>
+				<default>5</default>
+			</parameter>
+		 -->
+		</config-description>
+	</thing-type>
+	<channel-type id="buzzerChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Buzzer</label>
+        <description>Buzzer will play an alarm sound</description>
+        <category>Alarm</category>
+        <tags>
+            <tag>Security</tag>
+        </tags>
+    </channel-type>
+    <channel-type id="ledChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Led</label>
+        <description>Blink led</description>
+        <category>Alarm</category>
+        <tags>
+            <tag>Security</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>

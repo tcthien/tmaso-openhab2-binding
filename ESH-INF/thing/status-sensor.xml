@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="status-sensor">
+		<label>Status Sensor</label>
+		<description>Smart Sensor reporting a status likes: moving/non-moving, on/off, up/down...</description>
+		<channels>
+			<channel id="default" typeId="statusSensorDefaultChannel" />
+		</channels>
+		<config-description>
+		<!-- 
+			<parameter name="pingtime" type="integer" required="true">
+				<context>pingtime</context>
+				<label>Ping Time</label>
+				<description>Time to send MQTT ping packet in minutes.</description>
+				<default>5</default>
+			</parameter>
+		 -->
+		</config-description>
+	</thing-type>
+	<channel-type id="statusSensorDefaultChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Smart Sensor</label>
+        <description>Detect status: on/off, up/down, moving/non-moving</description>
+        <category>Sensor</category>
+        <tags>
+            <tag>Sensor</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>

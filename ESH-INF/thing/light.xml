@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="light">
+		<label>Smart Light</label>
+		<description>Smart Light which can be controlled by MQTT message</description>
+		<channels>
+			<channel id="default" typeId="defaultChannel" />
+		</channels>
+		<config-description>
+		<!-- 
+			<parameter name="pingtime" type="integer" required="true">
+				<context>pingtime</context>
+				<label>Ping Time</label>
+				<description>Time to send MQTT ping packet in minutes.</description>
+				<default>5</default>
+			</parameter>
+		 -->
+		</config-description>
+	</thing-type>
+	<channel-type id="defaultChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Smart Light</label>
+        <description>Turn on/off the light</description>
+        <category>Light</category>
+        <tags>
+            <tag>Light</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>
