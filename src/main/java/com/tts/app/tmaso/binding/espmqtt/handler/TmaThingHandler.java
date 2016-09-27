@@ -8,6 +8,7 @@
 package com.tts.app.tmaso.binding.espmqtt.handler;
 
 import java.util.Collection;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,11 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tts.app.tmaso.binding.ComponentActivator;
-import com.tts.app.tmaso.binding.device.TmaDevice;
+import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.device.TmaDeviceManager;
 import com.tts.app.tmaso.binding.mqtt.ThingProducer;
 import com.tts.app.tmaso.binding.mqtt.ThingSubscriber;
 import com.tts.app.tmaso.binding.mqtt.TmaMqttService;
+import com.tts.app.tmaso.binding.type.MqttAction;
 
 /**
  *
@@ -81,7 +83,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         }
         initializeResource();
         try {
-            thingProducer.publish(command, channelUID.getId());
+            thingProducer.publish(command, channelUID.getId(), MqttAction.SET);
         } catch (Exception e) {
             logger.error("", e);
             updateStatus(ThingStatus.OFFLINE);
@@ -89,7 +91,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
     }
 
     private void initializeResource() {
-        TmaDevice device = getCurrentDevice();
+        ManagedDevice device = getCurrentDevice();
         if (device == null || getThing() == null || getThing().getUID() == null) {
             return;
         }
@@ -139,13 +141,21 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         activate(null);
         discoveryServiceRegistry.addDiscoveryListener(this);
         updateStatus(ThingStatus.ONLINE);
+        ManagedDevice device = getCurrentDevice();
+        if (device != null) {
+            ThingUID uid = getThing().getUID();
+            for (Entry<String, State> entry : device.getChannels().entrySet()) {
+                ChannelUID channelUid = new ChannelUID(uid, entry.getKey());
+                updateStatePublic(channelUid, entry.getValue());
+            }
+        }
     }
 
-    private TmaDevice getCurrentDevice() {
+    private ManagedDevice getCurrentDevice() {
         ThingUID uid = getThing().getUID();
         String deviceUid = uid.getId();
 
-        TmaDevice device = deviceManager.getDevice(deviceUid);
+        ManagedDevice device = deviceManager.getDevice(deviceUid);
         return device;
     }
 

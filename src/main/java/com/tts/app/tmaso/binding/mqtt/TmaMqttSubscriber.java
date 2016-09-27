@@ -2,15 +2,25 @@ package com.tts.app.tmaso.binding.mqtt;
 
 import java.util.Arrays;
 
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.openhab.core.events.EventPublisher;
 import org.openhab.io.transport.mqtt.MqttMessageConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.tts.app.tmaso.binding.device.ManagedDevice;
+import com.tts.app.tmaso.binding.mqtt.msg.GetSetMessageBody;
 import com.tts.app.tmaso.binding.mqtt.msg.MqttMessage;
 import com.tts.app.tmaso.binding.mqtt.msg.MqttMessageBody;
+import com.tts.app.tmaso.binding.type.ChannelMetaData;
+import com.tts.app.tmaso.binding.type.ChannelType;
+import com.tts.app.tmaso.binding.type.MessageHelper;
 import com.tts.app.tmaso.binding.type.MqttAction;
 import com.tts.app.tmaso.binding.type.MqttConstants;
 
 public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
+
+    protected static Logger logger = LoggerFactory.getLogger(TmaMqttSubscriber.class);
 
     protected String topic;
     protected EventPublisher eventPublisher;
@@ -82,6 +92,31 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
 
     protected MqttMessageBody parseMessageBody(MqttMessage rs, String[] bodyArr) {
         return null;
+    }
+
+    protected MqttMessageBody parseSetGetMessage(ManagedDevice device, MqttMessage mqttMessage, String[] bodyArr) {
+        // Body's format: <channelName>:<channelValue>#<channelName>:<channelValue>#<channelName>:<channelValue>
+        GetSetMessageBody body = MqttMessageBody.getSetBody();
+
+        String[] channelPairStrings = bodyArr[0].split(MqttConstants.SEPARATOR_CHANNEL);
+        for (String channelPairString : channelPairStrings) {
+            String[] arr = channelPairString.split("\\:");
+            String channelName = arr.length == 1 ? MqttConstants.CHANNEL_NAME_DEFAULT : arr[0];
+            String channelValue = arr.length == 1 ? arr[0] : arr[1];
+
+            ChannelMetaData channel = device.getChannelMetaData(channelName);
+            if (channel == null) {
+                logger.error("Invalid channel name '{}' sent to device '{}'", channelName, device.getUid());
+            } else {
+                if (channel.getValue().equals(ChannelType.Status)) {
+                    body.channel(channelName, MessageHelper.convertToESHOnOff(channelValue.trim()));
+                } else {
+                    body.channel(channelName, new StringType(channelValue.trim()));
+                }
+            }
+
+        }
+        return body.cast();
     }
 
     protected abstract void processMessage(MqttMessage mqttMessage);

@@ -6,7 +6,9 @@ public enum MqttAction {
     PING,
     PONG,
     GET,
-    SET;
+    GET_BULK,
+    SET,
+    SET_BULK;
 
     public static MqttAction fromString(String b) {
         switch (b) {
@@ -18,8 +20,12 @@ public enum MqttAction {
                 return PONG;
             case "get":
                 return GET;
+            case "gets":
+                return GET_BULK;
             case "set":
                 return SET;
+            case "sets":
+                return SET_BULK;
         }
         return NONE;
     }

@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.eclipse.smarthome.core.types.State;
 
-import com.tts.app.tmaso.binding.type.ChannelPair;
+import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.DeviceType;
 
-public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, SetMessageBody {
+public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, GetSetMessageBody {
 
     private static final String KEY_VALUE = "value";
     private static final String KEY_CHANNEL_NAME = "channelName";
@@ -20,7 +20,8 @@ public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, Se
     private static final String KEY_FRIENDLY_NAME = "friendlyName";
 
     private Map<String, Object> attributes = new HashMap<>();
-    private List<ChannelPair> channels = new ArrayList<>();
+    private Map<String, State> channelValues = new HashMap<>();
+    private List<ChannelMetaData> channels = new ArrayList<>();
 
     private MqttMessageBody() {
     }
@@ -33,7 +34,7 @@ public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, Se
         return new MqttMessageBody();
     }
 
-    public static SetMessageBody setBody() {
+    public static GetSetMessageBody getSetBody() {
         return new MqttMessageBody();
     }
 
@@ -58,23 +59,13 @@ public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, Se
     }
 
     @Override
-    public void channel(ChannelPair channel) {
+    public void channel(ChannelMetaData channel) {
         channels.add(channel);
     }
 
     @Override
-    public void channel(List<ChannelPair> channels) {
+    public void channel(List<ChannelMetaData> channels) {
         channels.addAll(channels);
-    }
-
-    @Override
-    public void channelName(String channelName) {
-        attributes.put(KEY_CHANNEL_NAME, channelName);
-    }
-
-    @Override
-    public void value(State value) {
-        attributes.put(KEY_VALUE, value);
     }
 
     @Override
@@ -103,17 +94,23 @@ public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, Se
     }
 
     @Override
-    public List<ChannelPair> channels() {
+    public List<ChannelMetaData> channelMetaData() {
         return channels;
     }
 
     @Override
-    public String channelName() {
-        return (String) attributes.get(KEY_CHANNEL_NAME);
+    public void channel(String channelName, State channelValue) {
+        channelValues.put(channelName, channelValue);
     }
 
     @Override
-    public State value() {
-        return (State) attributes.get(KEY_VALUE);
+    public State channelValue(String channelName) {
+        return channelValues.get(channelName);
     }
+
+    @Override
+    public Map<String, State> channels() {
+        return channelValues;
+    }
+
 }

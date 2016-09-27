@@ -7,7 +7,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-import com.tts.app.tmaso.binding.device.TmaDevice;
+import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.mqtt.msg.MqttMessage;
 import com.tts.app.tmaso.binding.mqtt.msg.RegisterMessageBody;
 
@@ -20,8 +20,8 @@ public class MessageHelper {
         return devicePath + "/" + channelName + "/broadcast";
     }
 
-    public static TmaDevice getDevice(MqttMessage mqttMessage) {
-        TmaDevice rs = new TmaDevice();
+    public static ManagedDevice getDevice(MqttMessage mqttMessage) {
+        ManagedDevice rs = new ManagedDevice();
         rs.setUid(mqttMessage.getUid());
         if (mqttMessage.getBody() instanceof RegisterMessageBody) {
             RegisterMessageBody body = mqttMessage.getBody();
@@ -29,7 +29,7 @@ public class MessageHelper {
             rs.setIpAddress(body.ipAddress());
             rs.setPath(body.devicePath());
             rs.setDeviceType(body.deviceType());
-            rs.setChannels(body.channels());
+            rs.setChannelMetaData(body.channelMetaData());
         }
         return rs;
     }

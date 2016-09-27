@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +27,18 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
     private DiscoverySubscriber discoverySubscriber;
     private DevicePollingProducer pollingProducer;
 
-    private Map<String, TmaDevice> devices = new ConcurrentHashMap<>();
+    private Map<String, ManagedDevice> devices = new ConcurrentHashMap<>();
     private Map<String, Date> deviceUpdatedTime = new ConcurrentHashMap<>();
 
     @Override
-    public TmaDevice getDevice(String deviceUid) {
+    public ManagedDevice getDevice(String deviceUid) {
         return devices.get(deviceUid);
     }
 
     @Override
-    public List<TmaDevice> getAvailableDevices() {
-        List<TmaDevice> rs = new ArrayList<>();
-        for (TmaDevice device : devices.values()) {
+    public List<ManagedDevice> getAvailableDevices() {
+        List<ManagedDevice> rs = new ArrayList<>();
+        for (ManagedDevice device : devices.values()) {
             if (getStatus(device.getUid()).equals(DeviceStatus.ONLINE)) {
                 rs.add(device);
             }
@@ -52,9 +54,19 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
     }
 
     @Override
-    public void register(TmaDevice device) {
+    public void register(ManagedDevice device) {
         deviceUpdatedTime.put(device.getUid(), new Date());
         devices.put(device.getUid(), device);
+    }
+
+    @Override
+    public void updateAttributes(String uid, Map<String, State> attributes) {
+        ManagedDevice device = devices.get(uid);
+        if (device != null) {
+            for (Entry<String, State> entry : attributes.entrySet()) {
+                device.setChannel(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     @Override

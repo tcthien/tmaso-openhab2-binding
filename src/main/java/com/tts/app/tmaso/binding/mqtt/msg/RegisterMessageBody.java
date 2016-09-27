@@ -2,7 +2,7 @@ package com.tts.app.tmaso.binding.mqtt.msg;
 
 import java.util.List;
 
-import com.tts.app.tmaso.binding.type.ChannelPair;
+import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.DeviceType;
 
 public interface RegisterMessageBody extends MessageBody {
@@ -14,9 +14,9 @@ public interface RegisterMessageBody extends MessageBody {
 
     void devicePath(String devicePath);
 
-    void channel(ChannelPair channel);
+    void channel(ChannelMetaData channel);
 
-    void channel(List<ChannelPair> channels);
+    void channel(List<ChannelMetaData> channels);
 
     String friendlyName();
 
@@ -26,5 +26,5 @@ public interface RegisterMessageBody extends MessageBody {
 
     DeviceType deviceType();
 
-    List<ChannelPair> channels();
+    List<ChannelMetaData> channelMetaData();
 }

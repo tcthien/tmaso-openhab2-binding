@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.tts.app.tmaso.binding.BindingConstants;
 import com.tts.app.tmaso.binding.ComponentActivator;
-import com.tts.app.tmaso.binding.device.TmaDevice;
+import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.device.TmaDeviceManager;
 
 /**
@@ -74,10 +74,10 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
      * Add a ntp Thing for the local time in the discovery inbox
      */
     private void discoverTmaDevice() {
-        List<TmaDevice> availableDevices = deviceManager.getAvailableDevices();
+        List<ManagedDevice> availableDevices = deviceManager.getAvailableDevices();
         Map<String, Object> properties = new HashMap<>();
 
-        for (TmaDevice device : availableDevices) {
+        for (ManagedDevice device : availableDevices) {
             ThingUID uid = new ThingUID(device.getDeviceType().getThingType(), device.getUid());
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
                     .withLabel(device.getName()).build();
