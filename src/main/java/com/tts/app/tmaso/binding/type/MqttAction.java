@@ -12,7 +12,7 @@ public enum MqttAction {
 
     public static MqttAction fromString(String b) {
         switch (b) {
-            case "register":
+            case "reg":
                 return REGISTER;
             case "ping":
                 return PING;

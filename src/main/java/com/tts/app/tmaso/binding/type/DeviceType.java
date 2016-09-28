@@ -36,9 +36,9 @@ public enum DeviceType {
                 return Lcd;
             case "light":
                 return Light;
-            case "statussensor":
+            case "status":
                 return StatusSensor;
-            case "valuesensor":
+            case "value":
                 return ValueSensor;
         }
         return None;

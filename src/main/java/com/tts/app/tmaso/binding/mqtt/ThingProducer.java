@@ -53,7 +53,7 @@ public class ThingProducer extends TmaMqttProducer {
         publish(sb.toString());
     }
 
-    private boolean isOnValue(Command command) {
+    public static boolean isOnValue(Command command) {
         if (command == null) {
             return false;
         }

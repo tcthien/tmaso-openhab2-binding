@@ -32,7 +32,7 @@ public class DevicePollingProducer extends TmaMqttProducer implements ServiceAct
 
     @Override
     public void initialize() {
-        schedulerStop = scheduler.schedule(this, BindingConstants.TIME_PING, TimeUnit.MINUTES);
+        schedulerStop = scheduler.schedule(this, BindingConstants.TIME_PING, TimeUnit.SECONDS);
     }
 
     @Override

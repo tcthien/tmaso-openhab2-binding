@@ -2,6 +2,7 @@ package com.tts.app.tmaso.binding.mqtt;
 
 import java.util.Arrays;
 
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.openhab.core.events.EventPublisher;
 import org.openhab.io.transport.mqtt.MqttMessageConsumer;
@@ -49,7 +50,9 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
         if (isMatched(topic)) {
             String data = new String(payload);
             MqttMessage mqttMessage = parse(data);
-            processMessage(mqttMessage);
+            if (mqttMessage != null) {
+                processMessage(mqttMessage);
+            }
         }
     }
 
@@ -75,19 +78,24 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
          * ---------------------- <channel name>: string value
          * ---------------------- <channel type>: status (ON/OFF value), number, string
          */
-        String[] arr = data.split(MqttConstants.SEPARATOR);
+        try {
+            String[] arr = data.split(MqttConstants.SEPARATOR);
 
-        MqttMessage rs = new MqttMessage();
-        // MQTT Action
-        rs.setMqttAction(MqttAction.fromString(arr[0].trim()));
-        // MQTT UID
-        rs.setUid(arr[1].trim());
+            MqttMessage rs = new MqttMessage();
+            // MQTT Action
+            rs.setMqttAction(MqttAction.fromString(arr[0].trim()));
+            // MQTT UID
+            rs.setUid(arr[1].trim());
 
-        String[] bodyArr = Arrays.copyOfRange(arr, 2, arr.length);
-        // MQTT Body
-        MqttMessageBody msgBody = parseMessageBody(rs, bodyArr);
-        rs.setBody(msgBody);
-        return rs;
+            String[] bodyArr = Arrays.copyOfRange(arr, 2, arr.length);
+            // MQTT Body
+            MqttMessageBody msgBody = parseMessageBody(rs, bodyArr);
+            rs.setBody(msgBody);
+            return rs;
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+        return null;
     }
 
     protected MqttMessageBody parseMessageBody(MqttMessage rs, String[] bodyArr) {
@@ -112,6 +120,8 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
                     body.channel(channelName, MessageHelper.convertToESHOnOff(channelValue.trim()));
                 } else if (channel.getValue().equals(ChannelType.OpenClosed)) {
                     body.channel(channelName, MessageHelper.convertToESHOpenClosed(channelValue.trim()));
+                } else if (channel.getValue().equals(ChannelType.Number)) {
+                    body.channel(channelName, new DecimalType(channelValue.trim()));
                 } else {
                     body.channel(channelName, new StringType(channelValue.trim()));
                 }

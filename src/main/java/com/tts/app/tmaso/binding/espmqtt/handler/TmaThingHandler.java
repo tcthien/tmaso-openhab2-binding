@@ -9,8 +9,6 @@ package com.tts.app.tmaso.binding.espmqtt.handler;
 
 import java.util.Collection;
 import java.util.Map.Entry;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -18,6 +16,8 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -37,6 +37,8 @@ import com.tts.app.tmaso.binding.device.TmaDeviceManager;
 import com.tts.app.tmaso.binding.mqtt.ThingProducer;
 import com.tts.app.tmaso.binding.mqtt.ThingSubscriber;
 import com.tts.app.tmaso.binding.mqtt.TmaMqttService;
+import com.tts.app.tmaso.binding.type.ChannelMetaData;
+import com.tts.app.tmaso.binding.type.ChannelType;
 import com.tts.app.tmaso.binding.type.MqttAction;
 
 /**
@@ -66,7 +68,9 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
     ThingSubscriber thingSubscriber;
     ThingProducer thingProducer;
 
-    private ScheduledFuture<?> schedulerStop;
+    private boolean running = true;
+    private boolean subscribed = false;
+    private Thread thread;
 
     public TmaThingHandler(final Thing thing, final LocaleProvider localeProvider, TmaDeviceManager deviceManager,
             TmaMqttService tmaMqttService, DiscoveryServiceRegistry discoveryServiceRegistry) {
@@ -80,12 +84,29 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (getCurrentDevice() == null) {
+        ManagedDevice device = getCurrentDevice();
+        if (device == null) {
             return;
         }
         initializeResource();
         try {
+            // Publish command to MQTT
             thingProducer.publish(command, channelUID.getId(), MqttAction.SET);
+            // Update State
+            ChannelMetaData channel = device.getChannelMetaData(channelUID.getId());
+            if (channel.getValue().equals(ChannelType.OnOff) || channel.getValue().equals(ChannelType.Status)) {
+                if (ThingProducer.isOnValue(command)) {
+                    updateState(channelUID, OnOffType.ON);
+                } else {
+                    updateState(channelUID, OnOffType.OFF);
+                }
+            } else if (channel.getValue().equals(ChannelType.OpenClosed)) {
+                if (ThingProducer.isOnValue(command)) {
+                    updateState(channelUID, OpenClosedType.OPEN);
+                } else {
+                    updateState(channelUID, OpenClosedType.CLOSED);
+                }
+            }
         } catch (Exception e) {
             logger.error("", e);
             updateStatus(ThingStatus.OFFLINE);
@@ -105,6 +126,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
                 if (thingSubscriber == null) {
                     thingSubscriber = new ThingSubscriber(this, device);
                     tmaMqttService.register(thingSubscriber);
+                    subscribed = true;
                 }
             }
         }
@@ -113,6 +135,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
                 if (thingProducer == null) {
                     thingProducer = new ThingProducer(this, device);
                     tmaMqttService.register(thingProducer);
+                    subscribed = true;
                 }
             }
         }
@@ -126,6 +149,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
             synchronized (objLock) {
                 if (thingSubscriber != null) {
                     tmaMqttService.unregister(thingSubscriber);
+                    subscribed = false;
                 }
             }
         }
@@ -133,6 +157,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
             synchronized (objLock) {
                 if (thingProducer != null) {
                     tmaMqttService.unregister(thingProducer);
+                    subscribed = false;
                 }
             }
         }
@@ -199,20 +224,30 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     @Override
     public void activate(ComponentContext context) {
-        // Check & update device every 5s
-        schedulerStop = scheduler.schedule(new Runnable() {
+        thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
-                initializeResource();
+                while (running && !isSubscribed()) {
+                    initializeResource();
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                    }
+                }
             }
-        }, 5, TimeUnit.SECONDS);
+        });
+        thread.run();
         initializeResource();
     }
 
     @Override
     public void deactivate(ComponentContext context) {
-        schedulerStop.cancel(false);
+        running = false;
         uninitializeResource();
+    }
+
+    public boolean isSubscribed() {
+        return subscribed;
     }
 }
