@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -74,6 +75,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         this.deviceManager = deviceManager;
         this.tmaMqttService = tmaMqttService;
         this.discoveryServiceRegistry = discoveryServiceRegistry;
+        initializeResource();
     }
 
     @Override
@@ -90,7 +92,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         }
     }
 
-    private void initializeResource() {
+    public void initializeResource() {
         ManagedDevice device = getCurrentDevice();
         if (device == null || getThing() == null || getThing().getUID() == null) {
             return;
@@ -116,7 +118,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         }
     }
 
-    private void uninitializeResource() {
+    public void uninitializeResource() {
         // Clean up subscriber
         ThingUID uid = getThing().getUID();
         logger.debug("Uninitialize resource for: '{}'", uid);
@@ -192,6 +194,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     public void updateStatePublic(ChannelUID channelUid, State state) {
         updateState(channelUid, state);
+        postCommand(channelUid, RefreshType.REFRESH);
     }
 
     @Override

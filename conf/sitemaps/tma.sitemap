@@ -1,0 +1,25 @@
+sitemap demo label="Main Menu"
+{
+	Frame label="Environment Monitor" {
+		Text item=Env_Temperature_Inside valuecolor=[Weather_LastUpdate=="NULL"="lightgray",Weather_LastUpdate>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"]
+		Text item=Env_Temperature_Outside valuecolor=[Weather_LastUpdate=="NULL"="lightgray",Weather_LastUpdate>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"]
+		Text item=Env_Humidity valuecolor=[Env_Humidity=="NULL"="lightgray",Env_Humidity>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"]
+		Text item=Env_Moisture_Humidity valuecolor=[Env_Humidity=="NULL"="lightgray",Env_Humidity>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"]
+	}
+	
+	Frame label="Security Monitor" {
+		Text item=Sec_Security
+		Text item=Sec_Gas
+		Text item=Sec_Front_Door
+		Text item=Sec_Garage_Door
+	}
+	
+	Frame label="Remote Control" {
+		Switch item=RC_Security
+		Switch item=RC_GarageLight
+		Switch item=RC_LivingRoomLight
+		Switch item=RC_BedroomLight
+	}
+}
+
+// vim: syntax=Xtend syntax=openhab

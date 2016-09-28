@@ -7,7 +7,8 @@
 		<label>LCD</label>
 		<description>LCD displays information</description>
 		<channels>
-			<channel id="default" typeId="lcdDefaultChannel" />
+			<channel id="line1" typeId="lcdDefaultChannel1" />
+			<channel id="line2" typeId="lcdDefaultChannel2" />
 		</channels>
 		<config-description>
 		<!-- 
@@ -20,9 +21,18 @@
 		 -->
 		</config-description>
 	</thing-type>
-	<channel-type id="lcdDefaultChannel" advanced="true">
+	<channel-type id="lcdDefaultChannel1" advanced="true">
         <item-type>String</item-type>
-        <label>LCD</label>
+        <label>LCD Line 1</label>
+        <description>LCD displays information</description>
+        <category>LCD</category>
+        <tags>
+            <tag>LCD</tag>
+        </tags>
+    </channel-type>
+	<channel-type id="lcdDefaultChannel2" advanced="true">
+        <item-type>String</item-type>
+        <label>LCD Line 2</label>
         <description>LCD displays information</description>
         <category>LCD</category>
         <tags>

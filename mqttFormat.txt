@@ -1,0 +1,35 @@
+/tmaso/meta/discovery
+Enum:
+	- <Device Type>: alarm, door, lcd, light, statussensor, valuesensor
+	- <ChannelType>: status, onoff, openclosed, number, string
+
+Device startup:
+	- send register message:
+		+ Topic: /tmaso/meta/discovery
+		+ Register Door Format: register;door-uid;Front Door;door;192.168.1.101;/tmaso/device/frontdoor;status:openclosed#locker:onoff
+	- send set attribute message: 
+		+ Topic: /tmaso/meta/discovery
+		+ Set: set;door-uid;status:on#locker:off
+	- publish attribute: /tmaso/device/frontdoor/broadcast
+		
+Device polling:
+	- Firmware listen for ping MQTT message:
+		+ Firmware subscribed topic: /tmaso/meta/ping
+		+ Format(same as register): pong;uid;<Friendly Name>;<Device Type>;<IP Address>;/tmaso/device/light1;channelName:channelType#channelName:channelType
+	
+Device value:
+	- Firmware broadcast value:
+		+ Topic: /tmaso/device/light1/broadcast
+		+ Get: get;uid;channelName:channelValue#channelName:channelValue
+		
+	- Firmware recieve & process value:
+		+ Topic: /tmaso/device/light1
+		+ Set: set;uid;channelName:channelValue#channelName:channelValue
+		
+		
+Y:\development\tma-so\sources\prototype\Firmware\TMA_IoT_esp_mqtt_switches
+
+LCD:
+	- set;lcd-uid;line1:Hello
+	
+	register;door-uid;Front Door;door;192.168.1.101;/tmaso/device/frontdoor;status:openclosed#locker:onoff

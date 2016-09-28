@@ -86,10 +86,12 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
     protected ThingHandler createHandler(Thing thing) {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-
+        String deviceUid = thing.getUID().getId();
         if (BindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
-            return new TmaThingHandler(thing, localeProviderHolder, deviceManager, tmaMqttService,
-                    discoveryServiceRegistry);
+            TmaThingHandler thingHandler = new TmaThingHandler(thing, localeProviderHolder, deviceManager,
+                    tmaMqttService, discoveryServiceRegistry);
+            deviceManager.addThingHandler(deviceUid, thingHandler);
+            return thingHandler;
         }
 
         return null;

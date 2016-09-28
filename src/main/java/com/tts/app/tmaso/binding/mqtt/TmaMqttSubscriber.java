@@ -108,8 +108,10 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
             if (channel == null) {
                 logger.error("Invalid channel name '{}' sent to device '{}'", channelName, device.getUid());
             } else {
-                if (channel.getValue().equals(ChannelType.Status)) {
+                if (channel.getValue().equals(ChannelType.OnOff) || channel.getValue().equals(ChannelType.Status)) {
                     body.channel(channelName, MessageHelper.convertToESHOnOff(channelValue.trim()));
+                } else if (channel.getValue().equals(ChannelType.OpenClosed)) {
+                    body.channel(channelName, MessageHelper.convertToESHOpenClosed(channelValue.trim()));
                 } else {
                     body.channel(channelName, new StringType(channelValue.trim()));
                 }

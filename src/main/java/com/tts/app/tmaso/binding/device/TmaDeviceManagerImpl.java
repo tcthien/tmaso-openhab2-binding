@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tts.app.tmaso.binding.ComponentActivator;
+import com.tts.app.tmaso.binding.espmqtt.handler.TmaThingHandler;
 import com.tts.app.tmaso.binding.mqtt.DevicePollingProducer;
 import com.tts.app.tmaso.binding.mqtt.DiscoverySubscriber;
 import com.tts.app.tmaso.binding.mqtt.TmaMqttService;
@@ -29,6 +30,7 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
 
     private Map<String, ManagedDevice> devices = new ConcurrentHashMap<>();
     private Map<String, Date> deviceUpdatedTime = new ConcurrentHashMap<>();
+    private Map<String, TmaThingHandler> deviceThingHandler = new ConcurrentHashMap<>();
 
     @Override
     public ManagedDevice getDevice(String deviceUid) {
@@ -57,6 +59,11 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
     public void register(ManagedDevice device) {
         deviceUpdatedTime.put(device.getUid(), new Date());
         devices.put(device.getUid(), device);
+        // In case thing is already added to system, when it becomes available => init subscriber
+        // TmaThingHandler thingHandler = deviceThingHandler.get(device.getUid());
+        // if (thingHandler != null) {
+        // thingHandler.initializeResource();
+        // }
     }
 
     @Override
@@ -87,6 +94,10 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
         pollingProducer.uninitialize();
         tmaMqttService.unregister(discoverySubscriber);
         tmaMqttService.unregister(pollingProducer);
+        for (Entry<String, TmaThingHandler> entry : deviceThingHandler.entrySet()) {
+            entry.getValue().uninitializeResource();
+        }
+        deviceThingHandler.clear();
     }
 
     public void setTmaMqttService(TmaMqttService tmaMqttService) {
@@ -95,5 +106,10 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
 
     public void unSetTmaMqttService(TmaMqttService tmaMqttService) {
         this.tmaMqttService = null;
+    }
+
+    @Override
+    public void addThingHandler(String deviceUid, TmaThingHandler thingHandler) {
+        deviceThingHandler.put(deviceUid, thingHandler);
     }
 }

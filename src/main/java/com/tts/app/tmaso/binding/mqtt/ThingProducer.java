@@ -37,11 +37,17 @@ public class ThingProducer extends TmaMqttProducer {
         sb.append(mqttAction.toString());
         sb.append(";").append(device.getUid());
         sb.append(";").append(channelName);
-        if (channel.getValue().equals(ChannelType.Status)) {
+        if (channel.getValue().equals(ChannelType.OnOff) || channel.getValue().equals(ChannelType.Status)) {
             if (isOnValue(command)) {
                 sb.append(";").append(OnOffType.ON);
             } else {
                 sb.append(";").append(OnOffType.OFF);
+            }
+        } else if (channel.getValue().equals(ChannelType.OpenClosed)) {
+            if (isOnValue(command)) {
+                sb.append(";").append(OpenClosedType.OPEN);
+            } else {
+                sb.append(";").append(OpenClosedType.CLOSED);
             }
         }
         publish(sb.toString());
@@ -58,5 +64,4 @@ public class ThingProducer extends TmaMqttProducer {
         return val.equalsIgnoreCase("on") || val.equalsIgnoreCase("up") || val.equalsIgnoreCase("open")
                 || val.equalsIgnoreCase("true") || val.equalsIgnoreCase("1");
     }
-
 }

@@ -2,6 +2,8 @@ package com.tts.app.tmaso.binding.type;
 
 public enum ChannelType {
     Status,
+    OnOff,
+    OpenClosed,
     Number,
     String;
 
@@ -9,6 +11,10 @@ public enum ChannelType {
         switch (value) {
             case "status":
                 return Status;
+            case "onoff":
+                return OnOff;
+            case "openclosed":
+                return OpenClosed;
             case "number":
                 return Number;
             default:

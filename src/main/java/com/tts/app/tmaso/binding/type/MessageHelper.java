@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 import com.tts.app.tmaso.binding.device.ManagedDevice;
@@ -48,8 +49,39 @@ public class MessageHelper {
                 return OnOffType.OFF;
             case "OFF":
                 return OnOffType.OFF;
+            case "open":
+                return OnOffType.ON;
+            case "OPEN":
+                return OnOffType.ON;
+            case "closed":
+                return OnOffType.OFF;
+            case "CLOSED":
+                return OnOffType.OFF;
             default:
                 return OnOffType.OFF;
+        }
+    }
+
+    public static OpenClosedType convertToESHOpenClosed(String b) {
+        switch (b) {
+            case "on":
+                return OpenClosedType.OPEN;
+            case "ON":
+                return OpenClosedType.OPEN;
+            case "off":
+                return OpenClosedType.CLOSED;
+            case "OFF":
+                return OpenClosedType.CLOSED;
+            case "open":
+                return OpenClosedType.OPEN;
+            case "OPEN":
+                return OpenClosedType.OPEN;
+            case "closed":
+                return OpenClosedType.CLOSED;
+            case "CLOSED":
+                return OpenClosedType.CLOSED;
+            default:
+                return OpenClosedType.CLOSED;
         }
     }
 
