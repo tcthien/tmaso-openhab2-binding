@@ -11,7 +11,12 @@ public enum DeviceType {
     Lcd(THING_TYPE_LCD),
     Light(THING_TYPE_LIGHT, true),
     StatusSensor(THING_TYPE_STATUS_SENSOR, true),
-    ValueSensor(THING_TYPE_VALUE_SENSOR);
+    ValueSensor(THING_TYPE_VALUE_SENSOR),
+
+    ContactSensor(THING_TYPE_CONTACT),
+    GasSensor(THING_TYPE_GAS),
+    RfidReader(THING_TYPE_RFID),
+    Switch(THING_TYPE_SWITCH),;
 
     private boolean isOnOffKind;
     private ThingTypeUID thingType;
@@ -40,6 +45,14 @@ public enum DeviceType {
                 return StatusSensor;
             case "value":
                 return ValueSensor;
+            case "contact":
+                return ContactSensor;
+            case "gas":
+                return GasSensor;
+            case "rfid":
+                return RfidReader;
+            case "switch":
+                return Switch;
         }
         return None;
     }
