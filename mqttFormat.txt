@@ -6,7 +6,7 @@ Enum:
 Device startup:
 	- send register message:
 		+ Topic: /tma/discover
-		+ Register Door Format: reg;door-uid;Front Door;door;192.168.1.101;/tma/frontdoor;status:string#locker:string
+		+ Register Door Format: reg;door-uid;Front Door;door;192.168.1.101;/tma/frontdoor;status:openclosed#locker:onoff
 	- send set attribute message: 
 		+ Topic: /tma/discover
 		+ Set: set;door-uid;status:on#locker:off

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="contact">
+		<label>Contact Sensor</label>
+		<description>Contact Sensor helps to detect door open/closed state</description>
+		<channels>
+			<channel id="default" typeId="contactDefaultChannel" />
+		</channels>
+		<config-description>
+		<!-- 
+			<parameter name="pingtime" type="integer" required="true">
+				<context>pingtime</context>
+				<label>Ping Time</label>
+				<description>Time to send MQTT ping packet in minutes.</description>
+				<default>5</default>
+			</parameter>
+		 -->
+		</config-description>
+	</thing-type>
+	<channel-type id="contactDefaultChannel" advanced="true">
+        <item-type>Switch</item-type>
+        <label>Door Contact Sensor</label>
+        <description>Detect door open/closed state</description>
+        <category>Sensor</category>
+        <tags>
+            <tag>Sensor</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>
