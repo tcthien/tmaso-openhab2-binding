@@ -3,11 +3,11 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="value">
-		<label>Value Sensor</label>
-		<description>Smart Sensor reports a specific value like: humidity, temperature...</description>
+	<thing-type id="humidity">
+		<label>Humidity Sensor</label>
+		<description>Humidity Sensor reports humidity value</description>
 		<channels>
-			<channel id="default" typeId="valueSensorDefaultChannel" />
+			<channel id="default" typeId="humiditySensorDefaultChannel" />
 		</channels>
 		<config-description>
 		<!-- 
@@ -20,10 +20,10 @@
 		 -->
 		</config-description>
 	</thing-type>
-	<channel-type id="valueSensorDefaultChannel" advanced="true">
+	<channel-type id="humiditySensorDefaultChannel" advanced="true">
         <item-type>Number</item-type>
-        <label>Smart Sensor</label>
-        <description>Detect value like: temperature, humidify...</description>
+        <label>Humidity Sensor</label>
+        <description>Detect humidity value</description>
         <category>Sensor</category>
         <tags>
             <tag>Sensor</tag>
