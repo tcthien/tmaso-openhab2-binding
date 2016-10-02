@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
 import com.tts.app.tmaso.binding.BindingConstants;
 import com.tts.app.tmaso.binding.device.TmaDeviceManager;
-import com.tts.app.tmaso.binding.mqtt.TmaMqttService;
+import com.tts.app.tmaso.binding.device.TmaDeviceManagerImpl;
 
 /**
  * The {@link TmaThingHandlerFactory} is responsible for creating things and thing
@@ -40,18 +40,8 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
         }
     }
 
-    private TmaDeviceManager deviceManager;
     private final LocaleProviderHolder localeProviderHolder = new LocaleProviderHolder();
-    private TmaMqttService tmaMqttService;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
-
-    public void setDeviceManager(TmaDeviceManager deviceManager) {
-        this.deviceManager = deviceManager;
-    }
-
-    public void unSetDeviceManager(TmaDeviceManager deviceManager) {
-        this.deviceManager = null;
-    }
 
     protected void setLocaleProvider(final LocaleProvider localeProvider) {
         localeProviderHolder.localeProvider = localeProvider;
@@ -59,14 +49,6 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
         localeProviderHolder.localeProvider = null;
-    }
-
-    public void setTmaMqttService(TmaMqttService tmaMqttService) {
-        this.tmaMqttService = tmaMqttService;
-    }
-
-    public void unSetTmaMqttService(TmaMqttService tmaMqttService) {
-        this.tmaMqttService = null;
     }
 
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
@@ -84,13 +66,13 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
         String deviceUid = thing.getUID().getId();
         if (BindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
+            TmaDeviceManager deviceManager = TmaDeviceManagerImpl.getInstance();
             TmaThingHandler thingHandler = new TmaThingHandler(thing, localeProviderHolder, deviceManager,
-                    tmaMqttService, discoveryServiceRegistry);
-            deviceManager.addThingHandler(deviceUid, thingHandler);
+                    discoveryServiceRegistry);
+            deviceManager.manageThingHandler(deviceUid, thingHandler);
             return thingHandler;
         }
 

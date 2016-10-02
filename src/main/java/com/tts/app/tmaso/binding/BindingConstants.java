@@ -46,5 +46,5 @@ public class BindingConstants {
             THING_TYPE_TEMPERATURE);
 
     public static final long TIME_DISCOVERY = 30;// In seconds
-    public static long TIME_PING = 30;// 5 minutes
+    public static long TIME_PING = 30;// In seconds
 }

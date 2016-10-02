@@ -1,5 +1,6 @@
 package com.tts.app.tmaso.binding.mqtt.msg;
 
+import com.tts.app.tmaso.binding.TMAUtil;
 import com.tts.app.tmaso.binding.type.MqttAction;
 
 public class MqttMessage {
@@ -30,6 +31,11 @@ public class MqttMessage {
 
     public MqttMessageBody getBody() {
         return body;
+    }
+
+    @Override
+    public String toString() {
+        return TMAUtil.toString(action, uid, body);
     }
 
 }

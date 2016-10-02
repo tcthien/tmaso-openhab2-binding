@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.core.types.State;
 
+import com.tts.app.tmaso.binding.TMAUtil;
 import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.DeviceType;
 
@@ -24,6 +25,12 @@ public class MqttMessageBody implements RegisterMessageBody, PingMessageBody, Ge
     private List<ChannelMetaData> channels = new ArrayList<>();
 
     private MqttMessageBody() {
+    }
+
+    @Override
+    public String toString() {
+        return TMAUtil.toString("[", "attributes: " + attributes, "channelValues: " + channelValues,
+                "channels: " + channels, "]");
     }
 
     public static RegisterMessageBody registerBody() {

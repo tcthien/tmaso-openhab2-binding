@@ -43,8 +43,12 @@ public class DiscoverySubscriber extends TmaMqttSubscriber {
     @Override
     protected void processMessage(MqttMessage mqttMessage) {
         MqttAction action = mqttMessage.getAction();
-        if (action.equals(MqttAction.REGISTER) || action.equals(MqttAction.PONG)) {
+        if (action.equals(MqttAction.REGISTER)) {
             processRegisterMessage(mqttMessage);
+            return;
+        }
+        if (action.equals(MqttAction.PONG)) {
+            processPongMessage(mqttMessage);
             return;
         }
         if (action.equals(MqttAction.GET) || action.equals(MqttAction.GET_BULK) || action.equals(MqttAction.SET)
@@ -77,6 +81,11 @@ public class DiscoverySubscriber extends TmaMqttSubscriber {
             }
         }
         return rs.cast();
+    }
+
+    private void processPongMessage(MqttMessage mqttMessage) {
+        ManagedDevice device = MessageHelper.getDevice(mqttMessage);
+        deviceManager.pong(device);
     }
 
     private void processRegisterMessage(MqttMessage mqttMessage) {

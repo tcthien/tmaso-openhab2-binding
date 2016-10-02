@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tts.app.tmaso.binding.device.ManagedDevice;
-import com.tts.app.tmaso.binding.espmqtt.handler.TmaThingHandler;
 import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.ChannelType;
 import com.tts.app.tmaso.binding.type.MqttAction;
@@ -17,12 +16,10 @@ public class ThingProducer extends TmaMqttProducer {
 
     private static Logger logger = LoggerFactory.getLogger(ThingProducer.class);
 
-    private TmaThingHandler thingHandler;
     private ManagedDevice device;
 
-    public ThingProducer(TmaThingHandler tmaThingHandler, ManagedDevice device) {
+    public ThingProducer(ManagedDevice device) {
         super(device.getPath());
-        this.thingHandler = tmaThingHandler;
         this.device = device;
     }
 
@@ -39,15 +36,15 @@ public class ThingProducer extends TmaMqttProducer {
         sb.append(";").append(channelName);
         if (channel.getValue().equals(ChannelType.OnOff) || channel.getValue().equals(ChannelType.Status)) {
             if (isOnValue(command)) {
-                sb.append(";").append(OnOffType.ON);
+                sb.append(":").append(OnOffType.ON);
             } else {
-                sb.append(";").append(OnOffType.OFF);
+                sb.append(":").append(OnOffType.OFF);
             }
         } else if (channel.getValue().equals(ChannelType.OpenClosed)) {
             if (isOnValue(command)) {
-                sb.append(";").append(OpenClosedType.OPEN);
+                sb.append(":").append(OpenClosedType.OPEN);
             } else {
-                sb.append(";").append(OpenClosedType.CLOSED);
+                sb.append(":").append(OpenClosedType.CLOSED);
             }
         }
         publish(sb.toString());

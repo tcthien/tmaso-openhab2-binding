@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.tts.app.tmaso.binding.BindingConstants;
 import com.tts.app.tmaso.binding.ComponentActivator;
 import com.tts.app.tmaso.binding.device.ManagedDevice;
-import com.tts.app.tmaso.binding.device.TmaDeviceManager;
+import com.tts.app.tmaso.binding.device.TmaDeviceManagerImpl;
 
 /**
  *
@@ -39,20 +39,10 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
 
     private static Logger logger = LoggerFactory.getLogger(TmaDeviceDiscovery.class);
 
-    private TmaDeviceManager deviceManager;
-
     private ScheduledFuture<?> futureCall;
 
     public TmaDeviceDiscovery() throws IllegalArgumentException {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
-    }
-
-    public void setDeviceManager(TmaDeviceManager deviceManager) {
-        this.deviceManager = deviceManager;
-    }
-
-    public void unSetDeviceManager(TmaDeviceManager deviceManager) {
-        this.deviceManager = null;
     }
 
     @Override
@@ -74,7 +64,7 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
      * Add a ntp Thing for the local time in the discovery inbox
      */
     private void discoverTmaDevice() {
-        List<ManagedDevice> availableDevices = deviceManager.getAvailableDevices();
+        List<ManagedDevice> availableDevices = TmaDeviceManagerImpl.getInstance().getAvailableDevices();
         Map<String, Object> properties = new HashMap<>();
 
         for (ManagedDevice device : availableDevices) {
@@ -83,14 +73,14 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
                     .withLabel(device.getName()).build();
             thingDiscovered(result);
 
-            logger.debug("Device discovered: {}", uid);
+            logger.info("Device discovered: {}", uid);
         }
 
     }
 
     @Override
     public void activate(ComponentContext context) {
-        logger.debug("'{}' is activating to discover smart device", getClass().getName());
+        logger.info("'{}' is activating to discover smart device", getClass().getName());
     }
 
     @Override

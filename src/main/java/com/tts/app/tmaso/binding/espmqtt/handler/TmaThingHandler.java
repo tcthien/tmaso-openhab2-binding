@@ -27,16 +27,12 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tts.app.tmaso.binding.ComponentActivator;
 import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.device.TmaDeviceManager;
 import com.tts.app.tmaso.binding.mqtt.ThingProducer;
-import com.tts.app.tmaso.binding.mqtt.ThingSubscriber;
-import com.tts.app.tmaso.binding.mqtt.TmaMqttService;
 import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.ChannelType;
 import com.tts.app.tmaso.binding.type.MqttAction;
@@ -54,45 +50,44 @@ import com.tts.app.tmaso.binding.type.MqttAction;
  * @author Markus Rathgeb - Add locale provider
  */
 
-public class TmaThingHandler extends BaseThingHandler implements DiscoveryListener, ComponentActivator {
+public class TmaThingHandler extends BaseThingHandler implements DiscoveryListener {
 
     private static Logger logger = LoggerFactory.getLogger(TmaThingHandler.class);
-    private Object objLock = new Object();
 
     private final LocaleProvider localeProvider;
     private TmaDeviceManager deviceManager;
-    private TmaMqttService tmaMqttService;
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
-    ThingSubscriber thingSubscriber;
-    ThingProducer thingProducer;
-
-    private boolean running = true;
-    private boolean subscribed = false;
-    private Thread thread;
+    // ThingSubscriber thingSubscriber;
+    // ThingProducer thingProducer;
 
     public TmaThingHandler(final Thing thing, final LocaleProvider localeProvider, TmaDeviceManager deviceManager,
-            TmaMqttService tmaMqttService, DiscoveryServiceRegistry discoveryServiceRegistry) {
+            DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);
         this.localeProvider = localeProvider;
         this.deviceManager = deviceManager;
-        this.tmaMqttService = tmaMqttService;
         this.discoveryServiceRegistry = discoveryServiceRegistry;
-        initializeResource();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "# " + getThing().getUID();
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        ManagedDevice device = getCurrentDevice();
+        thingOffline();
+        ManagedDevice device = getDeviceFromManager();
         if (device == null) {
             return;
         }
-        initializeResource();
+        thingOnline();
         try {
-            // Publish command to MQTT
-            thingProducer.publish(command, channelUID.getId(), MqttAction.SET);
-            // Update State
+            // Publish command to MQTT ---------
+            deviceManager.publishMqttCommand(device, command, channelUID.getId(), MqttAction.SET);
+
+            // Update State --------------------
             ChannelMetaData channel = device.getChannelMetaData(channelUID.getId());
             if (channel.getValue().equals(ChannelType.OnOff) || channel.getValue().equals(ChannelType.Status)) {
                 if (ThingProducer.isOnValue(command)) {
@@ -109,67 +104,17 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
             }
         } catch (Exception e) {
             logger.error("", e);
-            updateStatus(ThingStatus.OFFLINE);
-        }
-    }
-
-    public void initializeResource() {
-        ManagedDevice device = getCurrentDevice();
-        if (device == null || getThing() == null || getThing().getUID() == null) {
-            return;
-        }
-        ThingUID uid = getThing().getUID();
-        logger.debug("Initialize resource for: '{}'", uid);
-
-        if (thingSubscriber == null) {
-            synchronized (objLock) {
-                if (thingSubscriber == null) {
-                    thingSubscriber = new ThingSubscriber(this, device);
-                    tmaMqttService.register(thingSubscriber);
-                    subscribed = true;
-                }
-            }
-        }
-        if (thingProducer == null) {
-            synchronized (objLock) {
-                if (thingProducer == null) {
-                    thingProducer = new ThingProducer(this, device);
-                    tmaMqttService.register(thingProducer);
-                    subscribed = true;
-                }
-            }
-        }
-    }
-
-    public void uninitializeResource() {
-        // Clean up subscriber
-        ThingUID uid = getThing().getUID();
-        logger.debug("Uninitialize resource for: '{}'", uid);
-        if (thingSubscriber != null) {
-            synchronized (objLock) {
-                if (thingSubscriber != null) {
-                    tmaMqttService.unregister(thingSubscriber);
-                    subscribed = false;
-                }
-            }
-        }
-        if (thingProducer != null) {
-            synchronized (objLock) {
-                if (thingProducer != null) {
-                    tmaMqttService.unregister(thingProducer);
-                    subscribed = false;
-                }
-            }
+            thingOffline();
         }
     }
 
     @Override
     public void initialize() {
-        activate(null);
         discoveryServiceRegistry.addDiscoveryListener(this);
-        updateStatus(ThingStatus.ONLINE);
-        ManagedDevice device = getCurrentDevice();
+        thingOffline();
+        ManagedDevice device = getDeviceFromManager();
         if (device != null) {
+            thingOnline();
             ThingUID uid = getThing().getUID();
             for (Entry<String, State> entry : device.getChannels().entrySet()) {
                 ChannelUID channelUid = new ChannelUID(uid, entry.getKey());
@@ -178,7 +123,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         }
     }
 
-    private ManagedDevice getCurrentDevice() {
+    private ManagedDevice getDeviceFromManager() {
         ThingUID uid = getThing().getUID();
         String deviceUid = uid.getId();
 
@@ -188,7 +133,6 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     @Override
     public void dispose() {
-        deactivate(null);
         discoveryServiceRegistry.removeDiscoveryListener(this);
         super.dispose();
     }
@@ -196,8 +140,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
     @Override
     public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
         if (result.getThingUID().equals(this.getThing().getUID())) {
-            updateStatus(ThingStatus.ONLINE);
-            initializeResource();
+            thingOnline();
         }
     }
 
@@ -205,15 +148,13 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
     public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
         if (thingUID.equals(this.getThing().getUID())) {
             logger.debug("Setting status for thing '{}' to OFFLINE", getThing().getUID());
-            updateStatus(ThingStatus.OFFLINE);
-            uninitializeResource();
+            thingOffline();
         }
     }
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -222,32 +163,11 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
         postCommand(channelUid, RefreshType.REFRESH);
     }
 
-    @Override
-    public void activate(ComponentContext context) {
-        thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                while (running && !isSubscribed()) {
-                    initializeResource();
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        });
-        thread.run();
-        initializeResource();
+    public void thingOnline() {
+        updateStatus(ThingStatus.ONLINE);
     }
 
-    @Override
-    public void deactivate(ComponentContext context) {
-        running = false;
-        uninitializeResource();
-    }
-
-    public boolean isSubscribed() {
-        return subscribed;
+    public void thingOffline() {
+        updateStatus(ThingStatus.OFFLINE);
     }
 }

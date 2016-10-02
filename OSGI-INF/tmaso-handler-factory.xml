@@ -17,7 +17,5 @@
    </service>
    
    <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static" unbind="unsetLocaleProvider"/>
-   <reference bind="setDeviceManager" cardinality="1..1" interface="com.tts.app.tmaso.binding.device.TmaDeviceManager" name="TmaDeviceManager" policy="static" unbind="unSetDeviceManager"/>
-   <reference bind="setTmaMqttService" cardinality="1..1" interface="com.tts.app.tmaso.binding.mqtt.TmaMqttService" name="TmaMqttService" policy="static" unbind="unSetTmaMqttService"/>
    <reference bind="setDiscoveryServiceRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry" name="DiscoveryServiceRegistry" policy="static" unbind="unsetDiscoveryServiceRegistry"/>
 </scr:component>
