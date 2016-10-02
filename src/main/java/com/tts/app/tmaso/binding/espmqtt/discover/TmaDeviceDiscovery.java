@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.tts.app.tmaso.binding.BindingConstants;
 import com.tts.app.tmaso.binding.ComponentActivator;
 import com.tts.app.tmaso.binding.device.ManagedDevice;
-import com.tts.app.tmaso.binding.device.TmaDeviceManagerImpl;
+import com.tts.app.tmaso.binding.device.TmaDeviceManager;
 
 /**
  *
@@ -40,6 +40,8 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
     private static Logger logger = LoggerFactory.getLogger(TmaDeviceDiscovery.class);
 
     private ScheduledFuture<?> futureCall;
+
+    private TmaDeviceManager deviceManager;
 
     public TmaDeviceDiscovery() throws IllegalArgumentException {
         super(SUPPORTED_THING_TYPES_UIDS, 10);
@@ -64,7 +66,7 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
      * Add a ntp Thing for the local time in the discovery inbox
      */
     private void discoverTmaDevice() {
-        List<ManagedDevice> availableDevices = TmaDeviceManagerImpl.getInstance().getAvailableDevices();
+        List<ManagedDevice> availableDevices = deviceManager.getAvailableDevices();
         Map<String, Object> properties = new HashMap<>();
 
         for (ManagedDevice device : availableDevices) {
@@ -90,4 +92,15 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
         }
     }
 
+    public TmaDeviceManager getDeviceManager() {
+        return deviceManager;
+    }
+
+    public void setDeviceManager(TmaDeviceManager deviceManager) {
+        this.deviceManager = deviceManager;
+    }
+
+    public void unSetDeviceManager(TmaDeviceManager deviceManager) {
+        this.deviceManager = null;
+    }
 }

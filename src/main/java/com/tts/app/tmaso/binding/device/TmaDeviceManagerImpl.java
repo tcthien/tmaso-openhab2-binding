@@ -32,8 +32,6 @@ import com.tts.app.tmaso.binding.type.MqttConstants;
 
 public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivator {
 
-    private static TmaDeviceManagerImpl INSTANCE = null;
-
     private static Logger logger = LoggerFactory.getLogger(TmaDeviceManagerImpl.class);
 
     private TmaMqttService tmaMqttService;
@@ -50,14 +48,6 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
     private Map<String, MqttManagedThingHandler> deviceHandler = new HashMap<>();// Protected by m_lockHandler
 
     private Map<String, TmaThingHandler> thingHandlers = new ConcurrentHashMap<>();
-
-    public TmaDeviceManagerImpl() {
-        INSTANCE = this;
-    }
-
-    public static synchronized TmaDeviceManagerImpl getInstance() {
-        return INSTANCE;
-    }
 
     @Override
     public void debug() {
@@ -132,9 +122,7 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
         List<ManagedDevice> rs = new ArrayList<>();
         synchronized (lockDevice) {
             for (ManagedDevice device : devices.values()) {
-                if (getStatus(device.getUid()).equals(DeviceStatus.ONLINE)) {
-                    rs.add(device);
-                }
+                rs.add(device);
             }
         }
         return rs;

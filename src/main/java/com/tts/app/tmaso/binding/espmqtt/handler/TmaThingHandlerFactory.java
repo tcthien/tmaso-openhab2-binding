@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 
 import com.tts.app.tmaso.binding.BindingConstants;
 import com.tts.app.tmaso.binding.device.TmaDeviceManager;
-import com.tts.app.tmaso.binding.device.TmaDeviceManagerImpl;
 
 /**
  * The {@link TmaThingHandlerFactory} is responsible for creating things and thing
@@ -40,6 +39,7 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
         }
     }
 
+    private TmaDeviceManager deviceManager;
     private final LocaleProviderHolder localeProviderHolder = new LocaleProviderHolder();
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
@@ -69,7 +69,6 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
         String deviceUid = thing.getUID().getId();
         if (BindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
-            TmaDeviceManager deviceManager = TmaDeviceManagerImpl.getInstance();
             TmaThingHandler thingHandler = new TmaThingHandler(thing, localeProviderHolder, deviceManager,
                     discoveryServiceRegistry);
             deviceManager.manageThingHandler(deviceUid, thingHandler);
@@ -77,5 +76,17 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
         }
 
         return null;
+    }
+
+    public TmaDeviceManager getDeviceManager() {
+        return deviceManager;
+    }
+
+    public void setDeviceManager(TmaDeviceManager deviceManager) {
+        this.deviceManager = deviceManager;
+    }
+
+    public void unSetDeviceManager(TmaDeviceManager deviceManager) {
+        this.deviceManager = null;
     }
 }
