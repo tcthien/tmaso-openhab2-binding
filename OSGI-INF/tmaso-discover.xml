@@ -16,5 +16,5 @@
       <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
    </service>
 
-    <reference bind="setDeviceManager" cardinality="1..1" interface="com.tts.app.tmaso.binding.device.TmaDeviceManager" name="com.tts.app.tmaso.binding.device.TmaDeviceManager" policy="static" unbind="unSetDeviceManager"/>
+    <reference bind="setDeviceManager" cardinality="1..1" interface="com.tts.app.tmaso.binding.device.TmaDeviceManager" name="TmaDeviceManager" policy="static" unbind="unSetDeviceManager"/>
 </scr:component>

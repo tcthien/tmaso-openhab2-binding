@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
@@ -48,6 +50,9 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
     private Map<String, MqttManagedThingHandler> deviceHandler = new HashMap<>();// Protected by m_lockHandler
 
     private Map<String, TmaThingHandler> thingHandlers = new ConcurrentHashMap<>();
+
+    static protected final ScheduledExecutorService deviceRegisterScheduler = ThreadPoolManager
+            .getScheduledPool("mqtt_register");
 
     @Override
     public void debug() {
@@ -136,13 +141,30 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
         // ? DeviceStatus.OFFLINE : DeviceStatus.ONLINE;
     }
 
-    private void checkAndRegister(ManagedDevice device) {
+    private void checkAndRegister(final ManagedDevice device) {
+        deviceRegisterScheduler.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                checkAndRegisterInThread(device);
+            }
+
+        });
+    }
+
+    private void checkAndRegisterInThread(final ManagedDevice device) {
         MqttManagedThingHandler handler = deviceHandler.get(device.getUid());
         if (handler != null) {
-            // Something existed in the system => unregister
-            handler.unitialize();
+            synchronized (lockHandler) {
+                handler = deviceHandler.get(device.getUid());
+                if (handler != null) {
+                    // Something existed in the system => unregister
+                    handler.unitialize();
+                    deviceHandler.put(device.getUid(), null);
+                }
+            }
         }
-        handler = MqttManagedThingHandlerImpl.manage(this, device, new ThingSubscriberCallback() {
+        handler = MqttManagedThingHandlerImpl.manage(TmaDeviceManagerImpl.this, device, new ThingSubscriberCallback() {
 
             @Override
             public Thing getThing(ManagedDevice device) {
@@ -165,7 +187,9 @@ public class TmaDeviceManagerImpl implements TmaDeviceManager, ComponentActivato
             }
         });
 
-        deviceHandler.put(device.getUid(), handler);
+        synchronized (lockHandler) {
+            deviceHandler.put(device.getUid(), handler);
+        }
         handler.initialize();
     }
 
