@@ -1,10 +1,12 @@
 package com.tts.app.tmaso.binding.mqtt;
 
+import org.openhab.io.transport.mqtt.MqttMessageConsumer;
+
 public interface TmaMqttService {
 
-    void register(TmaMqttSubscriber discoverySubscriber);
+    void register(MqttMessageConsumer discoverySubscriber);
 
-    void unregister(TmaMqttSubscriber discoverySubscriber);
+    void unregister(MqttMessageConsumer discoverySubscriber);
 
     void register(TmaMqttProducer producer);
 

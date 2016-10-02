@@ -1,5 +1,6 @@
 package com.tts.app.tmaso.binding.mqtt;
 
+import org.openhab.io.transport.mqtt.MqttMessageConsumer;
 import org.openhab.io.transport.mqtt.MqttService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +34,13 @@ public class TmaMqttServiceImpl implements TmaMqttService {
     }
 
     @Override
-    public void register(TmaMqttSubscriber subscriber) {
+    public void register(MqttMessageConsumer subscriber) {
         logger.info("'{}' is registered.", subscriber.getClass());
         this.mqttService.registerMessageConsumer(MqttConstants.BROKER_NAME, subscriber);
     }
 
     @Override
-    public void unregister(TmaMqttSubscriber subscriber) {
+    public void unregister(MqttMessageConsumer subscriber) {
         logger.info("'{}' is unregistered.", subscriber.getClass());
         this.mqttService.unregisterMessageConsumer(MqttConstants.BROKER_NAME, subscriber);
     }
