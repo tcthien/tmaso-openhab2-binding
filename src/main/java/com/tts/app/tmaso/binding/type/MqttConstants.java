@@ -5,6 +5,7 @@ public interface MqttConstants {
     public static final String SEPARATOR_CHANNEL = "#";
 
     // Topic
+    public static final String TOPIC_SYSTEM = "/tma/system";
     public static final String TOPIC_DEBUG = "/tma/debug";
     public static final String TOPIC_DISCOVERY = "/tma/discover";
     public static final String TOPIC_PING = "/tma/ping";

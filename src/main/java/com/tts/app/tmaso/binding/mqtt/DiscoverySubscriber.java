@@ -60,8 +60,10 @@ public class DiscoverySubscriber extends TmaMqttSubscriber {
 
     private void processGetSetMessage(MqttMessage mqttMessage) {
         GetSetMessageBody body = mqttMessage.getBody();
-        Map<String, State> attributes = body.channels();
-        deviceManager.updateAttributes(mqttMessage.getUid(), attributes);
+        if (body != null) {
+            Map<String, State> attributes = body.channels();
+            deviceManager.updateAttributes(mqttMessage.getUid(), attributes);
+        }
     }
 
     private MqttMessageBody parseRegisterMessage(String[] bodyArr) {

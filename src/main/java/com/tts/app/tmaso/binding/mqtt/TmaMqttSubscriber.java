@@ -1,7 +1,9 @@
 package com.tts.app.tmaso.binding.mqtt;
 
 import java.util.Arrays;
+import java.util.concurrent.ScheduledExecutorService;
 
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.openhab.core.events.EventPublisher;
@@ -9,6 +11,7 @@ import org.openhab.io.transport.mqtt.MqttMessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tts.app.tmaso.binding.TMAUtil;
 import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.mqtt.msg.GetSetMessageBody;
 import com.tts.app.tmaso.binding.mqtt.msg.MqttMessage;
@@ -25,6 +28,9 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
 
     protected String topic;
     protected EventPublisher eventPublisher;
+
+    static protected final ScheduledExecutorService deviceScheduler = ThreadPoolManager
+            .getScheduledPool("mqtt_subscriber");
 
     public TmaMqttSubscriber(String topic) {
         this.topic = topic;
@@ -46,13 +52,23 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
     }
 
     @Override
-    public void processMessage(String topic, byte[] payload) {
+    public void processMessage(final String topic, final byte[] payload) {
         if (isMatched(topic)) {
-            String data = new String(payload);
-            MqttMessage mqttMessage = parse(data);
-            if (mqttMessage != null) {
-                processMessage(mqttMessage);
-            }
+            TMAUtil.runThreadSafe(new Runnable() {
+
+                @Override
+                public void run() {
+                    processMessageInThread(topic, new String(payload));
+                }
+
+            });
+        }
+    }
+
+    protected void processMessageInThread(String topic, String data) {
+        MqttMessage mqttMessage = parse(data);
+        if (mqttMessage != null) {
+            processMessage(mqttMessage);
         }
     }
 
@@ -103,6 +119,9 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
     }
 
     protected MqttMessageBody parseSetGetMessage(ManagedDevice device, MqttMessage mqttMessage, String[] bodyArr) {
+        if (device == null) {
+            return null;
+        }
         // Body's format: <channelName>:<channelValue>#<channelName>:<channelValue>#<channelName>:<channelValue>
         GetSetMessageBody body = MqttMessageBody.getSetBody();
 
@@ -131,7 +150,9 @@ public abstract class TmaMqttSubscriber implements MqttMessageConsumer {
         return body.cast();
     }
 
-    protected abstract void processMessage(MqttMessage mqttMessage);
+    protected void processMessage(MqttMessage mqttMessage) {
+
+    }
 
     private boolean isMatched(String topic) {
         return this.topic.equalsIgnoreCase(topic);

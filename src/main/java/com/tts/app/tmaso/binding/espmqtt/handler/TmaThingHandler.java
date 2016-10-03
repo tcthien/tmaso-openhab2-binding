@@ -72,7 +72,7 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "# " + getThing().getUID();
+        return getClass().getSimpleName() + "# " + getThing().getUID() + " - " + getThing().getStatus();
     }
 
     @Override

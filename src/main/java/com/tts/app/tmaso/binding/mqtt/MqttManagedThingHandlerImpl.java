@@ -4,6 +4,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tts.app.tmaso.binding.TMAUtil;
 import com.tts.app.tmaso.binding.device.ManagedDevice;
 import com.tts.app.tmaso.binding.device.TmaDeviceManagerImpl;
 import com.tts.app.tmaso.binding.mqtt.ThingSubscriber.ThingSubscriberCallback;
@@ -20,6 +21,11 @@ public class MqttManagedThingHandlerImpl implements MqttManagedThingHandler {
     ThingProducer thingProducer;
 
     private ThingSubscriberCallback thingCallback;
+
+    @Override
+    public String toString() {
+        return TMAUtil.toString("[", getClass().getSimpleName(), " - ", device.getUid(), "]");
+    }
 
     private MqttManagedThingHandlerImpl(TmaDeviceManagerImpl deviceManager, ManagedDevice device,
             ThingSubscriberCallback thingCallback) {
@@ -50,7 +56,7 @@ public class MqttManagedThingHandlerImpl implements MqttManagedThingHandler {
 
     @Override
     public void initialize() {
-        logger.info("Initialize resource for {}", device.getUid());
+        logger.info("Initialize MQTT Subscriber & Producer for {}", device.getUid());
         thingSubscriber = new ThingSubscriber(thingCallback, device);
         deviceManager.getTmaMqttService().register(thingSubscriber);
 
@@ -60,7 +66,7 @@ public class MqttManagedThingHandlerImpl implements MqttManagedThingHandler {
 
     @Override
     public void unitialize() {
-        logger.info("Uninitialize resource for {}", device.getUid());
+        logger.info("Uninitialize MQTT Subscriber & Producer for {}", device.getUid());
         // Clean up subscriber
         deviceManager.getTmaMqttService().unregister(thingSubscriber);
         deviceManager.getTmaMqttService().unregister(thingProducer);

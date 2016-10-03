@@ -7,7 +7,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
 import com.tts.app.tmaso.binding.espmqtt.handler.TmaThingHandler;
-import com.tts.app.tmaso.binding.type.DeviceStatus;
 import com.tts.app.tmaso.binding.type.MqttAction;
 
 public interface TmaDeviceManager {
@@ -15,8 +14,6 @@ public interface TmaDeviceManager {
     void register(ManagedDevice device);
 
     void pong(ManagedDevice device);
-
-    DeviceStatus getStatus(String deviceUid);
 
     List<ManagedDevice> getAvailableDevices();
 
@@ -31,4 +28,7 @@ public interface TmaDeviceManager {
 
     void debug();
 
+    void reset(String deviceUid);
+
+    void ping();
 }

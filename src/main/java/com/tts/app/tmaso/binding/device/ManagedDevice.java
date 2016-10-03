@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.core.types.State;
 
+import com.tts.app.tmaso.binding.TMAUtil;
 import com.tts.app.tmaso.binding.type.ChannelMetaData;
 import com.tts.app.tmaso.binding.type.DeviceType;
 
@@ -17,6 +18,11 @@ public class ManagedDevice {
     private DeviceType deviceType;
     private Map<String, ChannelMetaData> channelMetaData = new HashMap<>();
     private Map<String, State> channel = new HashMap<>();
+
+    @Override
+    public String toString() {
+        return TMAUtil.toString("[", uid, ";", name, ";", path, ";", deviceType, "]");
+    }
 
     public String getUid() {
         return uid;
