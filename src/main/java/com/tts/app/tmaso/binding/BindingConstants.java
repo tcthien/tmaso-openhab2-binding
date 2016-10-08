@@ -40,10 +40,12 @@ public class BindingConstants {
     public final static ThingTypeUID THING_TYPE_HUMIDITY = new ThingTypeUID(BINDING_ID, "humidity");
     public final static ThingTypeUID THING_TYPE_TEMPERATURE = new ThingTypeUID(BINDING_ID, "temperature");
 
+    public final static ThingTypeUID THING_TYPE_MARY_TTS = new ThingTypeUID(BINDING_ID, "maryTTS");
+
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = MessageHelper.asSet(THING_TYPE_ALARM,
             THING_TYPE_DOOR, THING_TYPE_LCD, THING_TYPE_LIGHT, THING_TYPE_STATUS_SENSOR, THING_TYPE_VALUE_SENSOR,
             THING_TYPE_CONTACT, THING_TYPE_GAS, THING_TYPE_RFID, THING_TYPE_SWITCH, THING_TYPE_HUMIDITY,
-            THING_TYPE_TEMPERATURE);
+            THING_TYPE_TEMPERATURE, THING_TYPE_MARY_TTS);
 
     public static final long TIME_DISCOVERY = 30;// In seconds
     public static long TIME_PING = 30;// In seconds

@@ -67,6 +67,9 @@ public class TmaThingHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+        if (BindingConstants.THING_TYPE_MARY_TTS.equals(thingTypeUID)) {
+            return new MaryTTSThingHandler(thing, localeProviderHolder, discoveryServiceRegistry);
+        }
         String deviceUid = thing.getUID().getId();
         if (BindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             TmaThingHandler thingHandler = new TmaThingHandler(thing, localeProviderHolder, deviceManager,

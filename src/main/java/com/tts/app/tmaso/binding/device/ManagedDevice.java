@@ -21,7 +21,7 @@ public class ManagedDevice {
 
     @Override
     public String toString() {
-        return TMAUtil.toString("[", uid, ";", name, ";", path, ";", deviceType, "]");
+        return TMAUtil.toString("[", uid, name, path, deviceType, "]");
     }
 
     public String getUid() {

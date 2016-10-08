@@ -24,7 +24,7 @@ public class MqttManagedThingHandlerImpl implements MqttManagedThingHandler {
 
     @Override
     public String toString() {
-        return TMAUtil.toString("[", getClass().getSimpleName(), " - ", device.getUid(), "]");
+        return TMAUtil.toString("[", getClass().getSimpleName(), device.getUid(), "]");
     }
 
     private MqttManagedThingHandlerImpl(TmaDeviceManagerImpl deviceManager, ManagedDevice device,
