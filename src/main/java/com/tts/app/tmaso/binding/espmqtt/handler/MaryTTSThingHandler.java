@@ -7,14 +7,20 @@
  */
 package com.tts.app.tmaso.binding.espmqtt.handler;
 
+import java.net.URL;
 import java.util.Collection;
-import java.util.Map.Entry;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.DataLine.Info;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
-import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -24,12 +30,10 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
-import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tts.app.tmaso.binding.device.ManagedDevice;
+import com.tts.app.tmaso.binding.BindingConstants;
 
 /**
  *
@@ -48,17 +52,13 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
 
     private static Logger logger = LoggerFactory.getLogger(MaryTTSThingHandler.class);
 
-    private final LocaleProvider localeProvider;
-
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
     // ThingSubscriber thingSubscriber;
     // ThingProducer thingProducer;
 
-    public MaryTTSThingHandler(final Thing thing, final LocaleProvider localeProvider,
-            DiscoveryServiceRegistry discoveryServiceRegistry) {
+    public MaryTTSThingHandler(final Thing thing, DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);
-        this.localeProvider = localeProvider;
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
 
@@ -75,6 +75,8 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
             // Update State --------------------
             if (command instanceof StringType) {
                 StringType val = (StringType) command;
+                // Invoke to maryTTS Server
+                invokeMaryTTS(val.toString());
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -82,27 +84,33 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
         }
     }
 
+    private static void invokeMaryTTS(String val) throws Exception {
+        String text = val.replace(" ", "%20");
+        String voiceUrl = BindingConstants.MARY_TTS_SERVER + "/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT="
+                + text + BindingConstants.MARY_TTS_DEFAULT_PARAM;
+        // Play WAV from URL
+        logger.info("MaryTTS: {}", voiceUrl);
+        URL url = new URL(voiceUrl);
+
+        // getAudioInputStream() also accepts a File or InputStream
+        AudioInputStream ais = AudioSystem.getAudioInputStream(url);
+        AudioFormat format = ais.getFormat();
+        Info info = new DataLine.Info(Clip.class, format);
+
+        Clip clip = (Clip) AudioSystem.getLine(info);
+        clip.open(ais);
+        clip.start();
+    }
+
+    public static void main(String[] args) throws Exception {
+        invokeMaryTTS("Hello World");
+        Thread.sleep(10000);
+    }
+
     @Override
     public void initialize() {
         discoveryServiceRegistry.addDiscoveryListener(this);
-        thingOffline();
-        ManagedDevice device = getDeviceFromManager();
-        if (device != null) {
-            thingOnline();
-            ThingUID uid = getThing().getUID();
-            for (Entry<String, State> entry : device.getChannels().entrySet()) {
-                ChannelUID channelUid = new ChannelUID(uid, entry.getKey());
-                updateStatePublic(channelUid, entry.getValue());
-            }
-        }
-    }
-
-    private ManagedDevice getDeviceFromManager() {
-        ThingUID uid = getThing().getUID();
-        String deviceUid = uid.getId();
-
-        ManagedDevice device = deviceManager.getDevice(deviceUid);
-        return device;
+        thingOnline();
     }
 
     @Override
@@ -130,11 +138,6 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs) {
         return null;
-    }
-
-    public void updateStatePublic(ChannelUID channelUid, State state) {
-        updateState(channelUid, state);
-        postCommand(channelUid, RefreshType.REFRESH);
     }
 
     public void thingOnline() {

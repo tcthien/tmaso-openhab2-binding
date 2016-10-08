@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="tmaso" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="maryTTS">
+		<label>Mary TTS</label>
+		<description>Mary TTS Voice</description>
+		<channels>
+			<channel id="localMaryTTS" typeId="maryTTSChannel" />
+		</channels>
+		<config-description>
+		</config-description>
+	</thing-type>
+	<channel-type id="maryTTSChannel" advanced="true">
+        <item-type>String</item-type>
+        <label>Mary TTS</label>
+        <description>Mary TTS Voice</description>
+        <category>Util</category>
+        <tags>
+            <tag>Util</tag>
+        </tags>
+    </channel-type>
+</thing:thing-descriptions>

@@ -34,7 +34,8 @@ Bundle-SymbolicName: com.tts.app.tmaso.binding.espmqtt
 Bundle-DocURL: http://www.openhab.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/tmaso-*.xml
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ marytts-local-repo/
 Require-Bundle: org.openhab.io.transport.mqtt;bundle-version="1.3.0"
 Export-Package: com.tts.app.tmaso.binding.mqtt
 Bundle-Activator: com.tts.app.tmaso.binding.espmqtt.internal.MqttActivator
