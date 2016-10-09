@@ -102,11 +102,6 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
         clip.start();
     }
 
-    public static void main(String[] args) throws Exception {
-        invokeMaryTTS("Hello World");
-        Thread.sleep(10000);
-    }
-
     @Override
     public void initialize() {
         discoveryServiceRegistry.addDiscoveryListener(this);
