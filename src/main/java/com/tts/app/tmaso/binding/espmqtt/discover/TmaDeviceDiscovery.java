@@ -67,10 +67,11 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
      */
     private void discoverTmaDevice() {
         List<ManagedDevice> availableDevices = deviceManager.getAvailableDevices();
-        Map<String, Object> properties = new HashMap<>();
 
         // Device based on MQTT protocol
         for (ManagedDevice device : availableDevices) {
+            Map<String, Object> properties = new HashMap<>();
+
             ThingUID uid = new ThingUID(device.getDeviceType().getThingType(), device.getUid());
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
                     .withLabel(device.getName()).build();
@@ -80,6 +81,7 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
         }
 
         // MaryTTS
+        Map<String, Object> properties = new HashMap<>();
         ThingUID uid = new ThingUID(BindingConstants.THING_TYPE_MARY_TTS, "localMaryTTS");
         DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
                 .withLabel("Local Mary TTS").build();

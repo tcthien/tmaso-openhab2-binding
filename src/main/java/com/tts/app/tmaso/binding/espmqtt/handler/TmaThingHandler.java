@@ -59,9 +59,6 @@ public class TmaThingHandler extends BaseThingHandler implements DiscoveryListen
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
-    // ThingSubscriber thingSubscriber;
-    // ThingProducer thingProducer;
-
     public TmaThingHandler(final Thing thing, final LocaleProvider localeProvider, TmaDeviceManager deviceManager,
             DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);

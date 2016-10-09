@@ -17,6 +17,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.DataLine.Info;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -50,9 +51,13 @@ import com.tts.app.tmaso.binding.BindingConstants;
 
 public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryListener {
 
+    private static final String CONFIG_MARYTTS_SERVER = "maryttsServer";
+
     private static Logger logger = LoggerFactory.getLogger(MaryTTSThingHandler.class);
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
+
+    private String maryttsServer = null;
 
     // ThingSubscriber thingSubscriber;
     // ThingProducer thingProducer;
@@ -84,10 +89,9 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
         }
     }
 
-    private static void invokeMaryTTS(String val) throws Exception {
+    private void invokeMaryTTS(String val) throws Exception {
         String text = val.replace(" ", "%20");
-        String voiceUrl = BindingConstants.MARY_TTS_SERVER + "/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT="
-                + text + BindingConstants.MARY_TTS_DEFAULT_PARAM;
+        String voiceUrl = maryttsServer + "/process?INPUT_TEXT=" + text + BindingConstants.MARY_TTS_DEFAULT_PARAM;
         // Play WAV from URL
         logger.info("MaryTTS: {}", voiceUrl);
         URL url = new URL(voiceUrl);
@@ -104,6 +108,8 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
 
     @Override
     public void initialize() {
+        Configuration config = getThing().getConfiguration();
+        maryttsServer = (String) config.get(CONFIG_MARYTTS_SERVER);
         discoveryServiceRegistry.addDiscoveryListener(this);
         thingOnline();
     }

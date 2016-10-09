@@ -10,7 +10,13 @@
 			<channel id="localMaryTTS" typeId="maryTTSChannel" />
 		</channels>
 		<config-description>
-		</config-description>
+            <parameter name="maryttsServer" type="text" required="true">
+                <context>maryttsServer</context>
+                <label>MaryTTS Server</label>
+                <description>MaryTTS Server</description>
+                <default>http://localhost:59125</default>
+            </parameter>
+        </config-description>
 	</thing-type>
 	<channel-type id="maryTTSChannel" advanced="true">
         <item-type>String</item-type>
