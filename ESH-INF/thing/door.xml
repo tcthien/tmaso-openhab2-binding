@@ -11,14 +11,42 @@
 			<channel id="locker" typeId="lockerChannel" />
 		</channels>
 		<config-description>
-		<!-- 
-			<parameter name="pingtime" type="integer" required="true">
-				<context>pingtime</context>
-				<label>Ping Time</label>
-				<description>Time to send MQTT ping packet in minutes.</description>
-				<default>5</default>
-			</parameter>
-		 -->
+		    <parameter-group name="thingInfo">
+                <label>Thing Information</label>
+                <description>Infomration of the managed thing</description>
+                <advanced>false</advanced>
+            </parameter-group>
+            
+            <parameter name="thingUid" type="text" required="false" groupName="thingInfo">
+                <context>thingUid</context>
+                <label>Thing UID</label>
+                <description>Thing UID used to manage thing in OpenHAB</description>
+                <default></default>
+            </parameter>
+            <parameter name="thingName" type="text" required="false" groupName="thingInfo">
+                <context>thingName</context>
+                <label>Thing Name</label>
+                <description>Thing Name used to display in OpenHAB</description>
+                <default></default>
+            </parameter>
+            <parameter name="thingIpAddress" type="text" required="false" groupName="thingInfo">
+                <context>thingIpAddress</context>
+                <label>Thing IP Address</label>
+                <description>Thing IP Address used to manage thing in OpenHAB</description>
+                <default></default>
+            </parameter>
+            <parameter name="thingMqttTopic" type="text" required="false" groupName="thingInfo">
+                <context>thingMqttTopic</context>
+                <label>Thing MQTT Topic</label>
+                <description>MQTT Topic of the thing</description>
+                <default></default>
+            </parameter>
+            <parameter name="thingType" type="text" required="false" groupName="thingInfo">
+                <context>thingType</context>
+                <label>Thing Type</label>
+                <description>Thing Type used to display in OpenHAB</description>
+                <default></default>
+            </parameter>
 		</config-description>
 	</thing-type>
 	<channel-type id="statusChannel" advanced="true">

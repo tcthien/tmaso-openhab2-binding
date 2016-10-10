@@ -37,6 +37,12 @@ import com.tts.app.tmaso.binding.device.TmaDeviceManager;
  */
 public class TmaDeviceDiscovery extends AbstractDiscoveryService implements ComponentActivator {
 
+    private static final String CONFIG_THING_TYPE = "thingType";
+    private static final String CONFIG_THING_MQTT_TOPIC = "thingMqttTopic";
+    private static final String CONFIG_THING_IP_ADDRESS = "thingIpAddress";
+    private static final String CONFIG_THING_NAME = "thingName";
+    private static final String CONFIG_THING_UID = "thingUid";
+
     private static Logger logger = LoggerFactory.getLogger(TmaDeviceDiscovery.class);
 
     private ScheduledFuture<?> futureCall;
@@ -71,6 +77,11 @@ public class TmaDeviceDiscovery extends AbstractDiscoveryService implements Comp
         // Device based on MQTT protocol
         for (ManagedDevice device : availableDevices) {
             Map<String, Object> properties = new HashMap<>();
+            properties.put(CONFIG_THING_UID, device.getUid());
+            properties.put(CONFIG_THING_NAME, device.getName());
+            properties.put(CONFIG_THING_IP_ADDRESS, device.getIpAddress());
+            properties.put(CONFIG_THING_MQTT_TOPIC, device.getPath());
+            properties.put(CONFIG_THING_TYPE, device.getDeviceType().toString());
 
             ThingUID uid = new ThingUID(device.getDeviceType().getThingType(), device.getUid());
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)

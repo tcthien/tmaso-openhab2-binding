@@ -11,6 +11,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -67,10 +68,16 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
     // Setting
     private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
     private String maryttsServer = null;
+
+    private Timer wakeUptimer;
     private int wakeupHour;
     private int wakeupMinute;
     private String wakeUpMsg;
-    private Timer timer;
+
+    private Timer sleeptimer;
+    private String sleepMsg;
+    private int sleepHour;
+    private int sleepMinute;
 
     public MaryTTSThingHandler(final Thing thing, DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);
@@ -122,23 +129,49 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
         parseConfig(config);
         discoveryServiceRegistry.addDiscoveryListener(this);
         thingOnline();
-        // Schedule timer for wake up
+
+        // Wake up timer
         Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR_OF_DAY, wakeupHour);
         today.set(Calendar.MINUTE, wakeupMinute);
         today.set(Calendar.SECOND, 0);
-
-        // every night at 2am you run your task
-        if (timer != null) {
-            timer.cancel();
+        if (wakeUptimer != null) {
+            wakeUptimer.cancel();
         }
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
+        wakeUptimer = new Timer();
+        wakeUptimer.schedule(new TimerTask() {
 
             @Override
             public void run() {
                 try {
-                    invokeMaryTTS(wakeUpMsg);
+                    Date now = new Date();
+                    if (now.getHours() == wakeupHour && now.getMinutes() == wakeupMinute) {
+                        invokeMaryTTS(wakeUpMsg);
+                    }
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+        }, today.getTime(), TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+
+        // Sleep timer
+        today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, sleepHour);
+        today.set(Calendar.MINUTE, sleepMinute);
+        today.set(Calendar.SECOND, 0);
+        if (sleeptimer != null) {
+            sleeptimer.cancel();
+        }
+        sleeptimer = new Timer();
+        sleeptimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                try {
+                    Date now = new Date();
+                    if (now.getHours() == sleepHour && now.getMinutes() == sleepMinute) {
+                        invokeMaryTTS(sleepMsg);
+                    }
                 } catch (Exception e) {
                     logger.error("", e);
                 }
@@ -154,11 +187,23 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
         String[] arr = wakeUpAlarmString.split("\\:");
         wakeupHour = Integer.parseInt(arr[0]);
         wakeupMinute = Integer.parseInt(arr[1]);
+
+        sleepMsg = (String) config.get("sleepAlarmMsg");
+        String sleepAlarmString = (String) config.get("sleepAlarm");
+        arr = sleepAlarmString.split("\\:");
+        sleepHour = Integer.parseInt(arr[0]);
+        sleepMinute = Integer.parseInt(arr[1]);
     }
 
     @Override
     public void dispose() {
         discoveryServiceRegistry.removeDiscoveryListener(this);
+        if (wakeUptimer != null) {
+            wakeUptimer.cancel();
+        }
+        if (sleeptimer != null) {
+            sleeptimer.cancel();
+        }
         super.dispose();
     }
 

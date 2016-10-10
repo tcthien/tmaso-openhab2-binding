@@ -37,8 +37,21 @@
             <parameter name="wakeUpAlarmMsg" type="text" required="false" groupName="voiceAlarm">
                 <context>wakeUpAlarmMsg</context>
                 <label>Wake Up Voice Message</label>
-                <description>MaryTTS will talk with this text</description>
-                <default>Hey, wake up. This is time for breakfast</default>
+                <description>MaryTTS will remind with this text</description>
+                <default>Wake up. Breakfast time</default>
+            </parameter>
+            
+            <parameter name="sleepAlarm" type="text" required="false" groupName="voiceAlarm">
+                <context>sleepAlarm</context>
+                <label>Sleep At</label>
+                <description>Sleep time with format: HH:mm</description>
+                <default>22:30</default>
+            </parameter>
+            <parameter name="sleepAlarmMsg" type="text" required="false" groupName="voiceAlarm">
+                <context>sleepAlarmMsg</context>
+                <label>Sleep Voice Message</label>
+                <description>MaryTTS will remind with this text</description>
+                <default>Late time. You should take a rest</default>
             </parameter>
         </config-description>
 	</thing-type>
