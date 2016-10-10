@@ -10,11 +10,35 @@
 			<channel id="localMaryTTS" typeId="maryTTSChannel" />
 		</channels>
 		<config-description>
-            <parameter name="maryttsServer" type="text" required="true">
+		    <parameter-group name="generalConfig">
+                <label>General Configuration</label>
+                <description>Setting for MaryTTS Server</description>
+                <advanced>false</advanced>
+            </parameter-group>
+            <parameter-group name="voiceAlarm">
+                <label>Voice Alarm</label>
+                <description>Setting for Voice Alarm</description>
+                <advanced>false</advanced>
+            </parameter-group>
+            
+            <parameter name="maryttsServer" type="text" required="true" groupName="generalConfig">
                 <context>maryttsServer</context>
                 <label>MaryTTS Server</label>
                 <description>MaryTTS Server</description>
                 <default>http://localhost:59125</default>
+            </parameter>
+            
+            <parameter name="wakeUpAlarm" type="text" required="false" groupName="voiceAlarm">
+                <context>wakeUpAlarm</context>
+                <label>Wake Up At</label>
+                <description>Wake up time with format: HH:mm</description>
+                <default>06:30</default>
+            </parameter>
+            <parameter name="wakeUpAlarmMsg" type="text" required="false" groupName="voiceAlarm">
+                <context>wakeUpAlarmMsg</context>
+                <label>Wake Up Voice Message</label>
+                <description>MaryTTS will talk with this text</description>
+                <default>Hey, wake up. This is time for breakfast</default>
             </parameter>
         </config-description>
 	</thing-type>

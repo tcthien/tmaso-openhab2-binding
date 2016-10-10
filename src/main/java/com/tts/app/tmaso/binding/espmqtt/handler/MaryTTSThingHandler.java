@@ -8,7 +8,12 @@
 package com.tts.app.tmaso.binding.espmqtt.handler;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -52,15 +57,20 @@ import com.tts.app.tmaso.binding.BindingConstants;
 public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryListener {
 
     private static final String CONFIG_MARYTTS_SERVER = "maryttsServer";
+    private static final String CONFIG_WAKEUP_TIME = "wakeUpAlarm";
+    private static final String CONFIG_WAKEUP_MSG = "wakeUpAlarmMsg";
 
     private static Logger logger = LoggerFactory.getLogger(MaryTTSThingHandler.class);
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 
+    // Setting
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
     private String maryttsServer = null;
-
-    // ThingSubscriber thingSubscriber;
-    // ThingProducer thingProducer;
+    private int wakeupHour;
+    private int wakeupMinute;
+    private String wakeUpMsg;
+    private Timer timer;
 
     public MaryTTSThingHandler(final Thing thing, DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);
@@ -109,9 +119,41 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
     @Override
     public void initialize() {
         Configuration config = getThing().getConfiguration();
-        maryttsServer = (String) config.get(CONFIG_MARYTTS_SERVER);
+        parseConfig(config);
         discoveryServiceRegistry.addDiscoveryListener(this);
         thingOnline();
+        // Schedule timer for wake up
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, wakeupHour);
+        today.set(Calendar.MINUTE, wakeupMinute);
+        today.set(Calendar.SECOND, 0);
+
+        // every night at 2am you run your task
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                try {
+                    invokeMaryTTS(wakeUpMsg);
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+        }, today.getTime(), TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
+    }
+
+    private void parseConfig(Configuration config) {
+        maryttsServer = (String) config.get(CONFIG_MARYTTS_SERVER);
+
+        wakeUpMsg = (String) config.get(CONFIG_WAKEUP_MSG);
+        String wakeUpAlarmString = (String) config.get(CONFIG_WAKEUP_TIME);
+        String[] arr = wakeUpAlarmString.split("\\:");
+        wakeupHour = Integer.parseInt(arr[0]);
+        wakeupMinute = Integer.parseInt(arr[1]);
     }
 
     @Override
