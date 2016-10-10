@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +59,7 @@ import com.tts.app.tmaso.binding.BindingConstants;
 
 public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryListener {
 
+    private static final String CONFIG_DELAY_TIME = "delayTime";
     private static final String CONFIG_MARYTTS_SERVER = "maryttsServer";
     private static final String CONFIG_WAKEUP_TIME = "wakeUpAlarm";
     private static final String CONFIG_WAKEUP_MSG = "wakeUpAlarmMsg";
@@ -78,6 +81,9 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
     private String sleepMsg;
     private int sleepHour;
     private int sleepMinute;
+
+    private Set<String> speakingText = new HashSet<>();
+    private int delayTime;
 
     public MaryTTSThingHandler(final Thing thing, DiscoveryServiceRegistry discoveryServiceRegistry) {
         super(thing);
@@ -107,20 +113,36 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
     }
 
     private void invokeMaryTTS(String val) throws Exception {
-        String text = val.replace(" ", "%20");
-        String voiceUrl = maryttsServer + "/process?INPUT_TEXT=" + text + BindingConstants.MARY_TTS_DEFAULT_PARAM;
-        // Play WAV from URL
-        logger.info("MaryTTS: {}", voiceUrl);
-        URL url = new URL(voiceUrl);
+        synchronized (speakingText) {
+            if (speakingText.contains(val)) {
+                return;
+            } else {
+                speakingText.add(val);
+            }
+        }
+        try {
+            String text = val.replace(" ", "%20");
+            String voiceUrl = maryttsServer + "/process?INPUT_TEXT=" + text + BindingConstants.MARY_TTS_DEFAULT_PARAM;
+            // Play WAV from URL
+            logger.info("MaryTTS: {}", voiceUrl);
+            URL url = new URL(voiceUrl);
 
-        // getAudioInputStream() also accepts a File or InputStream
-        AudioInputStream ais = AudioSystem.getAudioInputStream(url);
-        AudioFormat format = ais.getFormat();
-        Info info = new DataLine.Info(Clip.class, format);
+            // getAudioInputStream() also accepts a File or InputStream
+            AudioInputStream ais = AudioSystem.getAudioInputStream(url);
+            AudioFormat format = ais.getFormat();
+            Info info = new DataLine.Info(Clip.class, format);
 
-        Clip clip = (Clip) AudioSystem.getLine(info);
-        clip.open(ais);
-        clip.start();
+            Clip clip = (Clip) AudioSystem.getLine(info);
+            clip.open(ais);
+            clip.start();
+            if (delayTime > 0) {
+                Thread.sleep(delayTime);
+            }
+        } finally {
+            synchronized (speakingText) {
+                speakingText.remove(val);
+            }
+        }
     }
 
     @Override
@@ -181,6 +203,11 @@ public class MaryTTSThingHandler extends BaseThingHandler implements DiscoveryLi
 
     private void parseConfig(Configuration config) {
         maryttsServer = (String) config.get(CONFIG_MARYTTS_SERVER);
+        try {
+            delayTime = Integer.parseInt((String) config.get(CONFIG_DELAY_TIME));
+        } catch (Exception e) {
+            delayTime = 0;
+        }
 
         wakeUpMsg = (String) config.get(CONFIG_WAKEUP_MSG);
         String wakeUpAlarmString = (String) config.get(CONFIG_WAKEUP_TIME);

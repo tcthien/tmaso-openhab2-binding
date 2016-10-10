@@ -27,6 +27,13 @@
                 <description>MaryTTS Server</description>
                 <default>http://localhost:59125</default>
             </parameter>
+            <parameter name="delayTime" type="text" required="true" groupName="generalConfig">
+                <context>delayTime</context>
+                <label>Delay Time</label>
+                <description>Delay Time</description>
+                <default>3000</default>
+            </parameter>
+            
             
             <parameter name="wakeUpAlarm" type="text" required="false" groupName="voiceAlarm">
                 <context>wakeUpAlarm</context>
